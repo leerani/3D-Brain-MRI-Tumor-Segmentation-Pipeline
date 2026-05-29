@@ -1,0 +1,16 @@
+torch
+torchvision
+torchaudio
+
+monai
+nibabel
+
+numpy
+scipy
+scikit-image
+
+matplotlib
+
+jupyter
+ipykernel
+ipywidgets
