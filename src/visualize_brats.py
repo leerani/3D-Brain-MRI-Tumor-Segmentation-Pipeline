@@ -1,6 +1,6 @@
 
 from pathlib import Path
-import nibabel as nib # 의료영상 파일을 읽기 위해
+import nibabel as nib 
 import numpy as np
 import matplotlib.pyplot as plt
 
