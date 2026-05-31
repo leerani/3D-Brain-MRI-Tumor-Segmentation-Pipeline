@@ -5,20 +5,20 @@ from monai.transforms import (
     EnsureChannelFirstd,
     NormalizeIntensityd,
     CropForegroundd,
-    RandSpatialCropd, # 3D MRI 전체를 그대로 쓰지 않고, 그중 일부 영역을 랜덤하게 잘라서 학습에 사용
+    RandSpatialCropd, 
     RandCropByPosNegLabeld,
-    EnsureTyped,      # 데이터를 PyTorch tensor 형태로 안정적으로 변환
-    RandFlipd,        # 50% 확률로 image와 label을 같은 방향으로 뒤집는 것
-    RandRotate90d,    # 50% 확률로 image와 label을 90도 단위로 회전시키는 것
+    EnsureTyped,     
+    RandFlipd,        
+    RandRotate90d,    
 )
 from monai.data import Dataset, DataLoader
 from monai.networks.nets import UNet
 from monai.losses import DiceLoss
 from monai.losses import DiceCELoss
-from monai.metrics import DiceMetric # 예측 마스크와 정답 마스크가 얼마나 겹치는지 평가하는 지표
-from monai.inferers import sliding_window_inference # 큰 3D 이미지를 작은 patch 단위로 나눠서 추론하는 기능
-from monai.transforms import AsDiscrete # 모델 출력값을 0/1 마스크로 바꾸는 후처리
-from monai.data import decollate_batch  # batch로 묶인 tensor를 샘플 단위로 다시 풀어주는 함수
+from monai.metrics import DiceMetric 
+from monai.inferers import sliding_window_inference 
+from monai.transforms import AsDiscrete 
+from monai.data import decollate_batch  
 
 import torch
 
