@@ -2,17 +2,14 @@
 # 실제로 한 batch가 잘 나오는지 확인
 
 from pathlib import Path
-from monai.transforms import ( # 의료영상 전처리 도구
-    Compose,             # transform들을 순서대로 묶어줌
+from monai.transforms import ( 
+    Compose,             
     LoadImaged,
-    EnsureChannelFirstd, # 이미지 shape를 모델 입력에 맞게 바꿈
-    NormalizeIntensityd, # 이미지 밝기값을 정규화
-    CropForegroundd,     # 배경을 줄이고 실제 뇌 영역이 있는 부분 위주로 자름
+    EnsureChannelFirstd,
+    NormalizeIntensityd, 
+    CropForegroundd,    
 )
 from monai.data import Dataset, DataLoader
-# Monai: Medical Open Network for AI
-# 의료영상 AI를 만들기 위한 Pytorch 기반 라이브러리
-# FLAIR는 뇌 병변이 잘 보이도록 만든 MRI 촬영 방식 중 하나
 
 # ------------------------
 # 1. 데이터 경로 설정
@@ -69,12 +66,3 @@ for batch in loader:
     print("image shape:", batch["image"].shape)
     print("label shape:", batch["label"].shape)
     break
-
-# 프로젝트 기준 경로 잡기
-# → BraTS training_data 폴더 찾기
-# → 케이스 10개 선택
-# → image/label 경로를 딕셔너리로 정리
-# → MONAI transform 정의
-# → Dataset 생성
-# → DataLoader 생성
-# → batch 하나 꺼내서 shape 확인
