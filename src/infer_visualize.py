@@ -11,17 +11,12 @@ from monai.networks.nets import UNet
 import nibabel as nib
 import scipy.ndimage as ndi
 
-# ------------------------
-# 경로
-# ------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 data_root = PROJECT_ROOT / "data" / "brats" / "BraTS2024" / "training_data"
 model_path = PROJECT_ROOT / "outputs" / "best_model_n.pth"
 
-# ------------------------
-# 케이스 하나 선택
-# ------------------------
-case = sorted(list(data_root.glob("BraTS-*")))[28]  # 아무거나 하나
+
+case = sorted(list(data_root.glob("BraTS-*")))[28] 
 
 t1n = list(case.glob("*t1n.nii.gz"))[0]
 t1c = list(case.glob("*t1c.nii.gz"))[0]
@@ -34,9 +29,7 @@ data = {
     "label": str(label)
 }
 
-# ------------------------
-# transform
-# ------------------------
+
 transforms = Compose([
     LoadImaged(keys=["image", "label"]),
     EnsureChannelFirstd(keys=["image", "label"]),
@@ -47,12 +40,10 @@ transforms = Compose([
 
 data = transforms(data)
 
-image = data["image"].unsqueeze(0)  # [1, 4, D, H, W]
+image = data["image"].unsqueeze(0)  
 label = data["label"]
 
-# ------------------------
-# 모델 로드
-# ------------------------
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = UNet(
@@ -67,9 +58,7 @@ model = UNet(
 model.load_state_dict(torch.load(model_path))
 model.eval()
 
-# ------------------------
-# inference
-# ------------------------
+
 with torch.no_grad():
     output = sliding_window_inference(
         image.to(device),
@@ -78,17 +67,13 @@ with torch.no_grad():
         predictor=model,
     )
 
-img = image.numpy()[0, 3]  # t2f 채널
+img = image.numpy()[0, 3] 
 gt = (label.numpy()[0] > 0).astype(np.float32)
 
-# ------------------------
-# slice 선택
-# ------------------------
+
 z = np.argmax([np.sum(gt[:, :, i]) for i in range(gt.shape[2])])
 
-# ------------------------
-# 2D slice 기준 post-processing
-# ------------------------
+
 pred = (output > 0.5).float().cpu().numpy()[0, 0]
 
 slice_pred = pred[:, :, z]
@@ -104,24 +89,19 @@ else:
 
 
 
-# ------------------------
-# 시각화
-# ------------------------
 fig, axes = plt.subplots(1, 4, figsize=(20, 5))
 
-# 원본 MRI slice 시각화용
+
 axes[0].imshow(img[:, :, z], cmap="gray")
 axes[0].set_title("MRI (T2-FLAIR)")
 
-# 정답 마스크 시각화용
 axes[1].imshow(gt[:, :, z], cmap="gray")
 axes[1].set_title("Ground Truth")
 
-# 예측 마스크 시각화용
+
 axes[2].imshow(slice_pred, cmap="gray")
 axes[2].set_title("Prediction")
 
-# 보고 싶은 slice index
 axes[3].imshow(img[:, :, z], cmap="gray")
 axes[3].imshow(slice_pred, cmap="Greens", alpha=0.35)
 axes[3].set_title("Overlay")
