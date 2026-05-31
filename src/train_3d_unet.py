@@ -22,9 +22,7 @@ from monai.data import decollate_batch
 
 import torch
 
-# ------------------------
-# 1. 경로 설정
-# ------------------------
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 data_root = PROJECT_ROOT / "data" / "brats" / "BraTS2024" / "training_data"
 
@@ -48,9 +46,7 @@ train_files = data_dicts[:70]
 val_files = data_dicts[70:85]
 test_files = data_dicts[85:]
 
-# ------------------------
-# 2. transform
-# ------------------------
+
 train_transforms = Compose([
     LoadImaged(keys=["image", "label"]),
     EnsureChannelFirstd(keys=["image", "label"]),
@@ -84,15 +80,10 @@ val_ds = Dataset(data=val_files, transform=val_transforms)
 train_loader = DataLoader(train_ds, batch_size=1, shuffle=True)
 val_loader = DataLoader(val_ds, batch_size=1, shuffle=False)
 
-# ------------------------
-# 3. device
-# ------------------------
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("using device:", device)
 
-# ------------------------
-# 4. model
-# ------------------------
 model = UNet(
     spatial_dims=3,
     in_channels=4,
@@ -102,7 +93,6 @@ model = UNet(
     num_res_units=2,
 ).to(device)
 
-# loss_function = DiceLoss(sigmoid=True, squared_pred=True)
 loss_function = DiceCELoss(
     sigmoid=True,
     squared_pred=True,
@@ -122,9 +112,7 @@ dice_metric = DiceMetric(include_background=True, reduction="mean")
 post_pred = AsDiscrete(threshold=0.5)
 post_label = AsDiscrete(threshold=0.5)
 
-# ------------------------
-# 5. training loop
-# ------------------------
+
 
 output_dir = PROJECT_ROOT / "outputs"
 output_dir.mkdir(exist_ok=True)
@@ -142,7 +130,6 @@ for epoch in range(max_epochs):
     for step, batch_data in enumerate(train_loader, start=1):
         inputs = batch_data["image"].to(device)
 
-        # multi-class mask를 일단 binary로 단순화
         labels = (batch_data["label"] > 0).float().to(device)
 
         optimizer.zero_grad()
@@ -159,7 +146,7 @@ for epoch in range(max_epochs):
 
     if (epoch + 1) % val_interval == 0:
         model.eval()
-        dice_metric.reset() # 이전 validation에서 누적된 metric 값을 초기화
+        dice_metric.reset() 
 
         with torch.no_grad():
             for val_data in val_loader:
